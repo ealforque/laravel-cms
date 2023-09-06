@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7.33
+    container_name: cms-db
+    networks:
+      - cms_network
+    ports:
+      - 33006:3306
+    volumes:
+      - database:/var/lib/mysql
+    env_file:
+      - .env
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cms-phpmyadmin
+    networks:
+      - cms_network
+    links:
+      - db
+    ports:
+      - 81:80
+    env_file:
+      - .env
+
+  app:
+    container_name: cms-app
+    networks:
+      - cms_network
+    build:
+      context: ./
+      dockerfile: docker/app/Dockerfile
+    working_dir: /var/www/html/
+    volumes:
+      - ./:/var/www/html/
+      - ./storage/logs/app:/var/www/html/storage/logs
+    links:
+      - db
+    ports:
+      - 9000:9000
+
+  nginx:
+    container_name: cms-nginx
+    networks:
+      - cms_network
+    build: docker/nginx
+    command: nginx -g "daemon off;"
+    links:
+      - app
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www/html/
+      - ./storage/logs/nginx/:/var/log/nginx
+    environment:
+      APP_ADDRESS: "app:9000"
+
+volumes:
+  database:
+
+networks:
+  cms_network:
