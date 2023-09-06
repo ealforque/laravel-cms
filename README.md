@@ -5,6 +5,12 @@
 > Laravel 9  
 > Docker
 
+## Design Patterns
+
+> Domain Driven Design  
+> Repository & Service Layer Design Pattern  
+> Offset and Cursor Pagination implemented
+
 ## Prerequisites
 
 > PHP  
